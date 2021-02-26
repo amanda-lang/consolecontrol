@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using ConsoleControlAPI;
 
@@ -74,7 +75,9 @@ namespace ConsoleControl
         void processInterace_OnProcessOutput(object sender, ProcessEventArgs args)
         {
             //  Write the output, in white
-            WriteOutput(args.Content, Color.White);
+            byte[] bytes = Encoding.Default.GetBytes(args.Content);
+            string convertido = Encoding.UTF8.GetString(bytes);
+            WriteOutput(convertido, Color.White);
 
             //  Fire the output event.
             FireConsoleOutputEvent(args.Content);
@@ -100,7 +103,7 @@ namespace ConsoleControl
             //  Are we showing diagnostics?
             if (ShowDiagnostics)
             {
-                WriteOutput(Environment.NewLine + processInterace.ProcessFileName + " exited.", Color.FromArgb(255, 0, 255, 0));
+                WriteOutput("Fim de execução", Color.FromArgb(255, 0, 255, 0));
             }
             
             if (!this.IsHandleCreated)
@@ -208,7 +211,7 @@ namespace ConsoleControl
             {
                 //  Write the output.
                 richTextBoxConsole.SelectionColor = color;
-                richTextBoxConsole.SelectedText += output;
+                richTextBoxConsole.SelectedText += "-> " + output;
                 inputStart = richTextBoxConsole.SelectionStart;
             }));
         }
@@ -232,6 +235,8 @@ namespace ConsoleControl
         {
             Invoke((Action)(() =>
             {
+                byte[] bytes = Encoding.UTF8.GetBytes(input);
+                input = Encoding.Default.GetString(bytes);
                 //  Are we echoing?
                 if (echo)
                 {
@@ -262,11 +267,11 @@ namespace ConsoleControl
             //  Are we showing diagnostics?
             if (ShowDiagnostics)
             {
-                WriteOutput("Preparing to run " + fileName, Color.FromArgb(255, 0, 255, 0));
-                if (!string.IsNullOrEmpty(arguments))
+                WriteOutput("Iniciando a compilação..." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));
+                /*if (!string.IsNullOrEmpty(arguments))
                     WriteOutput(" with arguments " + arguments + "." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));
                 else
-                    WriteOutput("." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));
+                    WriteOutput("." + Environment.NewLine, Color.FromArgb(255, 0, 255, 0));*/
             }
 
             //  Start the process.
